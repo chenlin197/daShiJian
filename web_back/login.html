@@ -59,20 +59,26 @@
      <script src="./js/bootstrap/js/bootstrap.min.js"></script>
     <script>
         $(function () {
+            // 给按钮注册点击事件
             $('.input_sub').on('click', function (e) {
+                // 阻止默认自动转跳功能
                 e.preventDefault();
+                // 获取用户输入帐号密码
                 var userName = $('.input_txt').val().trim();
                 var password = $('.input_pass').val().trim();
                 //  console.log(userName +':'+ password);
+                // 判断    如果帐号为空或者密码为空
                 if (userName == '' || password == '') {
+                    // 把提示框text(文本内容)改为帐号密码不能为空
                     $('.modal-body').text('帐号密码不能为空');
+
                      //调用bs的方法,弹出模态框
                      $('#myModal').modal({
                          keyboard: true
                     });
                     return;
                 }
-
+                // 调用ajax请求数据
                 $.ajax({
                     type: 'post',
                     url: 'https://autumnfish.cn/big/admin/login ',
@@ -82,10 +88,14 @@
                     },
                     success: function (backData) {
                         console.log(backData);
+                         //帐号密码输入正确返回code值为200
                         if (backData.code == 200) {
+                            // 帐号密码输入正确则转跳页面
                             window.location.href = './index.html';
                         } else {
+                            // 帐号密码输入错误则把提示框内容改为帐号密码错误,请重新输
                             $('.modal-body').text('帐号密码错误,请重新输入');
+                            //调用bs的方法,弹出模态框
                             $('#myModal').modal({
                                 keyboard: true
                             });
