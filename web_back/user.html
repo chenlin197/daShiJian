@@ -69,7 +69,6 @@
     </div>
 
 
-<<<<<<< HEAD
     <script>
 
 
@@ -87,6 +86,12 @@
                 url: 'http://localhost:8000/admin/userinfo_get',
                 success: function (backData) {
                     console.log(backData);
+                    //把得到的这些数据 依次的填入到对应的标签中.
+                    // $('input.username').val(backData.data.username);
+                    // $('input.nickname').val(backData.data.nickname);
+                    // $('input.email').val(backData.data.email);
+                    // $('input.password').val(backData.data.password);
+                    //上面的四句话可以用下面这一个forin搞定.
                     for (var key in backData.data) {
                         $('input.' + [key]).val(backData.data[key]);
 
@@ -99,8 +104,10 @@
 
 
             // 图片预览
+            // 给用户图标按钮加  change改变事件
             $('#exampleInputFile').on('change', function () {
                 //    选中图片
+               // files  文件
                 var icon = this.files[0];
                 // 根据这个图片文件创建一个url
                 var url = URL.createObjectURL(icon);
@@ -125,6 +132,9 @@
                     console.log(backData);
                     if (backData.code == 200) {
                         console.log('修改成功');
+                    parent.$('.user_info span').html('欢迎&nbsp;&nbsp;' + backData.data.nickname);
+                    parent.$('.user_info img').attr('src', backData.data.user_pic);
+                    parent.$('.user_center_link img').attr('src', backData.data.user_pic);
                     }
                 }
             })
@@ -134,10 +144,6 @@
 
     </script>
 
-=======
-
-
->>>>>>> 38b3af43f720b96bf0378abdb0cab850670b11af
 </body>
 
 </html>

@@ -73,7 +73,8 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" id="xinZeng" class="btn btn-success" data-toggle="modal"
+                                data-target="#addModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -90,13 +91,14 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <input type="hidden" name="id" id="recipient-id">
                         <div class="form-group">
-                            <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name1">
+                            <label  for="recipient-name" class="control-label">分类名称:</label>
+                            <input name="name" type="text" class="form-control" id="recipient-name1">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name2">
+                            <input name="slug" type="text" class="form-control" id="recipient-name2">
                         </div>
                     </form>
                 </div>
@@ -113,8 +115,8 @@
         <td>{{$value.name}}</td>
         <td>{{$value.slug}}</td>
         <td class="text-center">
-            <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});" class="btn btn-info btn-xs">编辑</a>
-            <a href="javascript:deleteTr({{$value.id}} );" class="btn btn-danger btn-xs">删除</a>
+            <a href="javascript:void(0);"  data-id="{{$value.id}}" class="btn btn-info btn-xs btn-edit">编辑</a>
+            <a href="javascript:void(0);"  data-id="{{$value.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
         </td>
     </tr>
     {{/each}}
@@ -131,7 +133,7 @@
         });
 
         $('#model_add').click(function () {
-           // alert('add');
+            // alert('add');
             $('#addModal').modal('hide');
         });
 
@@ -143,53 +145,156 @@
         })
 
 
-
-        $.ajax({
-            type: 'get',
-            url: 'http://localhost:8000/admin/category_search',
-            success: function (backData) {
-                var resHtml = template('tmp_cate', backData);
-                $('tbody').html(resHtml);
-
-            }
-        })
-
-
-        $('#model_add').on('click', function () {
-            var userName = $('#recipient-name1').val();
-            var userSlug = $('#recipient-name1').val();
-
-
-            $('#addModal').modal('hide');
-            $.ajax({
-                type: 'post',
-                url: 'http://localhost:8000/admin/category_add ',
-                data: {
-                    name: userName,
-                    slug: userSlug,
-                },
-                success: function (backData) {
-                    console.log(backData);
-                    if (backData.code == 200) {
-                        $.ajax({
-                            type: 'get',
-                            url: 'http://localhost:8000/admin/category_search',
-                            success: function (backData) {
-                                var resHtml = template('tmp_cate', backData);
-                                $('tbody').html(resHtml);
-
-                            }
-                        })
+        $(function () {
+            function ajaxFzhuang() {
+                $.ajax({
+                    //   发送ajax请求
+                    type: 'get',
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (backData) {
+                        // 调用模版引擎
+                        var resHtml = template('tmp_cate', backData);
+                        // 把模版引擎数据传到tbody
+                        $('tbody').html(resHtml);
 
                     }
+                })
+            }
+
+            ajaxFzhuang();
+
+            // 给新增按钮注册点击事件
+            $('#model_add').on('click', function () {
+                // 因为新增和编辑是同一个模态框  所有判断一下点击的是哪个
+                //如果点击的是带有btn-success类的为编辑框
+                if ($(this).hasClass('btn-success')) {
+                    // // 获取id
+                    // var id = $('#recipient-id').val();
+                    // // 获取类别
+                    // var name = $('#recipient-name1').val();
+                    // // 获取别名
+                    // var slug = $('#recipient-name2').val();
+                    // console.log('id=' + id + 'name=' + name + 'slug=' + slug);
+                    var data1 =$('form').serialize();
+                      
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_edit',
+                        // data: {
+                        //     // id: id,
+                        //     // name: name,
+                        //     // slug: slug
+                            
+                        // },
+                        data:data1,
+                        success: function (backData) {
+                            console.log(backData);
+                            ajaxFzhuang();
+
+                        }
+                    })
+
+                } else {
+                    // 获取用户输入信息
+                    var userName = $('#recipient-name1').val();
+                    var userSlug = $('#recipient-name1').val();
+
+
+                    $('#addModal').modal('hide');
+                    //   发送ajax请求
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_add ',
+                        data: {
+                            // 请求参数
+                            name: userName,
+                            slug: userSlug,
+                        },
+                        success: function (backData) {
+                            //  console.log(backData);
+                            // code为200 为成功    404为失败
+                            if (backData.code == 200) {
+                                // 当code为200时在发送一次模版引擎的请求刷新页面
+                                ajaxFzhuang();
+
+                            }
+
+                        }
+                    })
 
                 }
             })
 
+
+            // 删除分类
+            // 动态添加所以要用委托事件
+            $('tbody').on('click', '.btn-delete', function () {
+                // 找到点击的删除标签
+                var shanChu = $(this);
+                //   把需要删除的数据加自定义id   然后找到他
+                var id = $(this).attr('data-id');
+                console.log(id);
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: id
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        // ajaxFzhuang();
+                        //找到删除标签的parent父亲的父亲把他删除（直接删整个tr）
+                        shanChu.parent().parent().remove();
+
+                    }
+                })
+
+            })
+
+
+            $('tbody').on('click', '.btn-edit', function () {
+                // 找到点击编辑按钮
+                var id = $(this).attr('data-id');
+                // 获取类别名称
+                var name = $(this).parent().prev().prev().text();
+                // 获取别名
+                var slug = $(this).parent().prev().text();
+                // console.log('id:' + id + 'name:' + name + 'slug:' + slug);
+
+                $('#recipient-name1').val(name);
+                $('#recipient-name2').val(slug);
+                $('#recipient-id').val(id);
+
+
+
+                //   点击编辑按钮把给保存按钮添加一个类让他变绿
+                $('#model_add').addClass('btn-success');
+                // 文本变为保存
+                $('#model_add').text('保存');
+                $('.modal-header .modal-title').text('修改分类名称');
+
+            })
+
+
+
+            $('#xinZeng').on('click', function () {
+                // 点击新增按钮的时候类别名称跟别名输入框内容变为空
+                $('#recipient-name1').val('');
+                $('#recipient-name2').val('');
+                // 保存按钮删除绿色类
+                $('#model_add').removeClass('btn-success');
+                $('.modal-header .modal-title').text('新增分类名称');
+                $('#model_add').text('新增');
+
+
+            })
+
+
+
+
+
+
         })
-
-
-      
     </script>
 
 </body>

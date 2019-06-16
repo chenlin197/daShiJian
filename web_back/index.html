@@ -129,7 +129,7 @@
                 $('.level02').children().eq(n).addClass('active').siblings().removeClass('active');
             }
         }
-<<<<<<< HEAD
+
         $('#btn_logout').on('click', function (e) {
             e.preventDefault();
             $.ajax({
@@ -174,7 +174,7 @@
 
      
          
-=======
+
          $('#btn_logout').on('click',function(e){
              e.preventDefault();
              $.ajax({
@@ -183,7 +183,7 @@
                  success:function(backData){
                   
                     if(backData.code == 200){
-                         window.location.href = './login.html';
+                        
                     }else{
                         $('.modal-body').text('退出失败');
                             //调用bs的方法,弹出模态框
@@ -194,7 +194,7 @@
                  }
              })
          })
->>>>>>> 38b3af43f720b96bf0378abdb0cab850670b11af
+
     </script>
 
 </body>
